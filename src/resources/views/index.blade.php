@@ -6,9 +6,12 @@
 
 @section('content')
 
+@foreach ($stocks as $stock)
 <div>
-    <h1>日経平均株価: {{ $nikkei }}</h1>
-
+    <h2>銘柄名: {{ $stock['stockName'] }}</h2>
+    <p>証券コード: {{ $stock['code'] }}</p>
+    <p>市場ID: {{ $stock['market_id'] }}</p>
 </div>
+@endforeach
 
 @endsection
