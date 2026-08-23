@@ -50,10 +50,4 @@ return [
         'redirect' => env('GOOGLE_REDIRECT_URI'),
     ],
 
-    'login' => [
-        // Only this address may sign in (directly or via Google) — this
-        // app has a single owner, not open registration.
-        'allowed_email' => env('LOGIN_EMAIL'),
-    ],
-
 ];

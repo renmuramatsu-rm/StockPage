@@ -17,7 +17,7 @@ class SbiHoldingRequest extends FormRequest
         return [
             'code' => [
                 'required', 'string', 'max:10', 'exists:stocks,code',
-                Rule::unique('sbi_holdings', 'code')->ignore($this->route('sbi_holding')),
+                Rule::unique('sbi_holdings', 'code')->where('user_id', $this->user()->id)->ignore($this->route('sbi_holding')),
             ],
             'shares' => 'required|integer|min:1',
             'average_acquisition_price' => 'required|numeric|min:0',

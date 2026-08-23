@@ -34,6 +34,16 @@ class User extends Authenticatable
         'remember_token',
     ];
 
+    public function themes()
+    {
+        return $this->hasMany(Theme::class);
+    }
+
+    public function sbiHoldings()
+    {
+        return $this->hasMany(SbiHolding::class);
+    }
+
     /**
      * Get the attributes that should be cast.
      *

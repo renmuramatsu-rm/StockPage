@@ -9,10 +9,12 @@ use Illuminate\Support\Str;
 use Laravel\Socialite\Facades\Socialite;
 
 /**
- * Google sign-in. This app has a single owner rather than open
- * registration, so any Google account is allowed to complete the OAuth
- * dance, but only the address configured in LOGIN_EMAIL is actually let
- * in — anyone else's Google login is rejected after the callback.
+ * Google sign-in for the Next.js SPA. The app allows open self-registration,
+ * so any Google account may sign in — an existing user is matched by
+ * google_id/email, otherwise a new account is created on the fly, same as
+ * email/password registration. Laravel only handles the OAuth redirect
+ * dance server-side; the resulting session cookie is what the SPA relies
+ * on, so every outcome below sends the browser back to the frontend.
  */
 class GoogleAuthController extends Controller
 {
@@ -26,16 +28,12 @@ class GoogleAuthController extends Controller
         try {
             $googleUser = Socialite::driver('google')->user();
         } catch (\Throwable $e) {
-            return redirect()->route('login')->withErrors(['email' => 'Googleログインに失敗しました。もう一度お試しください。']);
+            return redirect(config('app.frontend_url').'/login?error=google_failed');
         }
 
-        $allowedEmail = config('services.login.allowed_email');
-
-        if (! $allowedEmail || strcasecmp($googleUser->getEmail(), $allowedEmail) !== 0) {
-            return redirect()->route('login')->withErrors(['email' => 'このGoogleアカウントではログインできません。']);
-        }
-
-        $user = User::where('email', $allowedEmail)->first();
+        $user = User::where('google_id', $googleUser->getId())
+            ->orWhere('email', $googleUser->getEmail())
+            ->first();
 
         if ($user) {
             $user->update([
@@ -44,8 +42,8 @@ class GoogleAuthController extends Controller
             ]);
         } else {
             $user = User::create([
-                'name' => $googleUser->getName() ?: 'Owner',
-                'email' => $allowedEmail,
+                'name' => $googleUser->getName() ?: $googleUser->getEmail(),
+                'email' => $googleUser->getEmail(),
                 'google_id' => $googleUser->getId(),
                 'password' => Hash::make(Str::random(40)),
             ]);
@@ -54,6 +52,6 @@ class GoogleAuthController extends Controller
         Auth::login($user, remember: true);
         request()->session()->regenerate();
 
-        return redirect()->intended(route('themes.dashboard'));
+        return redirect(config('app.frontend_url').'/login/callback');
     }
 }

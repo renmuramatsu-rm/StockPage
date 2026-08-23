@@ -19,7 +19,7 @@ class ThemeRequest extends FormRequest
                 'required',
                 'string',
                 'max:255',
-                Rule::unique('themes', 'name')->ignore($this->route('theme')),
+                Rule::unique('themes', 'name')->where('user_id', $this->user()->id)->ignore($this->route('theme')),
             ],
             'description' => 'nullable|string',
             'color' => 'nullable|string|max:7',
