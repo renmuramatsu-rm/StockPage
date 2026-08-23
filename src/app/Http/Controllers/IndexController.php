@@ -9,7 +9,7 @@ class IndexController extends Controller
 
     public function index()
     {
-        $apiKey = '2659626995c143e5a133d601e23bbfeb';
+        $apiKey = config('services.twelvedata.key');
         $symbol = 'N225';
 
         $response = Http::get('https://api.twelvedata.com/price', [

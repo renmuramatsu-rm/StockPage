@@ -13,14 +13,8 @@ class MarketSeeder extends Seeder
      */
     public function run(): void
     {
-        DB::table('markets')->insert([
-            'market' => 'プライム',
-        ]);
-        DB::table('markets')->insert([
-            'market' => 'スタンダード',
-        ]);
-        DB::table('markets')->insert([
-            'market' => 'グロース',
-        ]);
+        foreach (['プライム', 'スタンダード', 'グロース'] as $market) {
+            DB::table('markets')->updateOrInsert(['market' => $market]);
+        }
     }
 }

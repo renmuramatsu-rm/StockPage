@@ -14,6 +14,15 @@ services:
     volumes:
       - ./src:/var/www/
 
+  scheduler:
+    build: ./docker/php
+    volumes:
+      - ./src:/var/www/
+    working_dir: /var/www
+    command: php artisan schedule:work
+    depends_on:
+      - mysql
+
   mysql:
     image: mysql:8.0.26
     environment:
