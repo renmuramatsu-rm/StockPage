@@ -45,6 +45,7 @@ class StockScoreRecorder
             'pbr' => $pbr,
             'roe' => $latest?->roe !== null ? (float) $latest->roe : null,
             'equity_ratio' => $latest?->equity_ratio !== null ? (float) $latest->equity_ratio : null,
+            'roa' => $trendRows ? end($trendRows)['roa'] : null,
         ]);
 
         return StockScore::updateOrCreate(

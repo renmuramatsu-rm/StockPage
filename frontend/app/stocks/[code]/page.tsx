@@ -28,6 +28,10 @@ export default function StockShowPage() {
   const { stock, trendRows, cagr, cagrYears, salesChartConfig, profitChartConfig, ratioChartConfig, syncError, scoreRecord, overview } = data;
   const q = encodeURIComponent(stock.stockName);
   const priceChange = scoreRecord.price_change !== null ? parseFloat(scoreRecord.price_change) : null;
+  const latestRow = trendRows.length > 0 ? trendRows[trendRows.length - 1] : null;
+  const currentPrice = scoreRecord.current_price !== null ? parseFloat(scoreRecord.current_price) : null;
+  const dividendYield =
+    latestRow?.dividend_per_share && currentPrice ? Math.round((latestRow.dividend_per_share / currentPrice) * 1000) / 10 : null;
 
   const cagrCard = (label: string, value: number | null) => (
     <div className="border border-slate-200 rounded-2xl shadow-sm p-4 bg-white">
@@ -105,7 +109,12 @@ export default function StockShowPage() {
       <div className="border border-slate-200 rounded-2xl shadow-sm p-5 mb-6 bg-white">
         <div className="flex items-center justify-between flex-wrap gap-3">
           <div>
-            <div className="text-xs text-slate-500 mb-1.5">投資判断スコア（機械的な参考指標であり、投資助言ではありません）</div>
+            <div className="text-xs text-slate-500 mb-1.5">
+              投資判断スコア（機械的な参考指標であり、投資助言ではありません）
+              <Link href="/glossary" className="ml-2 text-indigo-500 hover:underline">
+                指標の見方
+              </Link>
+            </div>
             <ScoreBadge score={scoreRecord} className="text-sm px-3 py-1" />
           </div>
           <div className="text-sm text-right">
@@ -130,6 +139,7 @@ export default function StockShowPage() {
                   {scoreRecord.price_date ? new Date(scoreRecord.price_date).toLocaleDateString("ja-JP") : ""}時点
                   {scoreRecord.per !== null && <span className="ml-2">PER {scoreRecord.per}倍</span>}
                   {scoreRecord.pbr !== null && <span className="ml-2">PBR {scoreRecord.pbr}倍</span>}
+                  {dividendYield !== null && <span className="ml-2">配当利回り {dividendYield}%</span>}
                 </div>
                 <p className="text-[11px] text-slate-400 mt-1">※無料プランのため株価は最新から遅延したデータです（リアルタイムではありません）</p>
               </>
@@ -155,7 +165,7 @@ export default function StockShowPage() {
             </div>
           </div>
           <div className="bg-slate-50 rounded-xl p-3.5">
-            <div className="text-slate-500 text-xs">収益性・財務健全性</div>
+            <div className="text-slate-500 text-xs">収益性・財務健全性（ROE・ROA・自己資本比率）</div>
             <div className="font-semibold text-slate-800 mt-0.5">
               {scoreRecord.quality_label}
               {scoreRecord.quality_score !== null ? `（${scoreRecord.quality_score}点）` : ""}
@@ -245,7 +255,7 @@ export default function StockShowPage() {
           </div>
 
           <div className="border border-slate-200 rounded-2xl shadow-sm bg-white overflow-x-auto">
-            <table className="w-full text-sm border-collapse min-w-[720px]">
+            <table className="w-full text-sm border-collapse min-w-[960px]">
               <thead>
                 <tr className="border-b border-slate-200 bg-slate-50 text-left">
                   <th className="py-2.5 px-3 text-slate-500 font-medium">年度</th>
@@ -256,7 +266,10 @@ export default function StockShowPage() {
                   <th className="py-2.5 px-3 text-right text-slate-500 font-medium">純利益</th>
                   <th className="py-2.5 px-3 text-right text-slate-500 font-medium">EPS</th>
                   <th className="py-2.5 px-3 text-right text-slate-500 font-medium">ROE</th>
+                  <th className="py-2.5 px-3 text-right text-slate-500 font-medium">ROA</th>
                   <th className="py-2.5 px-3 text-right text-slate-500 font-medium">自己資本比率</th>
+                  <th className="py-2.5 px-3 text-right text-slate-500 font-medium">一株配当</th>
+                  <th className="py-2.5 px-3 text-right text-slate-500 font-medium">配当性向</th>
                 </tr>
               </thead>
               <tbody className="font-mono">
@@ -275,7 +288,10 @@ export default function StockShowPage() {
                     <td className="py-2 px-3 text-right">{row.profit !== null ? formatNumber(row.profit) : "—"}</td>
                     <td className="py-2 px-3 text-right text-slate-600">{row.eps ?? "—"}</td>
                     <td className="py-2 px-3 text-right text-slate-600">{row.roe !== null ? `${row.roe}%` : "—"}</td>
+                    <td className="py-2 px-3 text-right text-slate-600">{row.roa !== null ? `${row.roa}%` : "—"}</td>
                     <td className="py-2 px-3 text-right text-slate-600">{row.equity_ratio !== null ? `${row.equity_ratio}%` : "—"}</td>
+                    <td className="py-2 px-3 text-right text-slate-600">{row.dividend_per_share !== null ? row.dividend_per_share : "—"}</td>
+                    <td className="py-2 px-3 text-right text-slate-600">{row.payout_ratio !== null ? `${row.payout_ratio}%` : "—"}</td>
                   </tr>
                 ))}
               </tbody>

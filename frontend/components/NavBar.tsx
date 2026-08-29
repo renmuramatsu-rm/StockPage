@@ -16,6 +16,7 @@ export default function NavBar() {
     links.push({ href: "/", label: "テーマ別", activePrefix: "/themes" });
   }
   links.push({ href: "/stocks", label: "銘柄一覧", activePrefix: "/stocks" });
+  links.push({ href: "/glossary", label: "指標の見方", activePrefix: "/glossary" });
   if (user) {
     links.push({ href: "/favorites", label: "お気に入り", activePrefix: "/favorites" });
     links.push({ href: "/sbi-holdings", label: "SBI保有", activePrefix: "/sbi-holdings" });

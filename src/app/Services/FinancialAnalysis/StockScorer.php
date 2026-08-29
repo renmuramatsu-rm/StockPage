@@ -13,13 +13,13 @@ namespace App\Services\FinancialAnalysis;
 class StockScorer
 {
     /**
-     * @param  array{sales_growth: ?float, profit_growth: ?float, per: ?float, pbr: ?float, roe: ?float, equity_ratio: ?float}  $inputs  Growth figures as percentages (e.g. 12.5 for +12.5%); ROE/equity_ratio as percentages.
+     * @param  array{sales_growth: ?float, profit_growth: ?float, per: ?float, pbr: ?float, roe: ?float, equity_ratio: ?float, roa: ?float}  $inputs  Growth figures as percentages (e.g. 12.5 for +12.5%); ROE/ROA/equity_ratio as percentages.
      */
     public function score(array $inputs): array
     {
         $growth = $this->growthAxis($inputs['sales_growth'] ?? null, $inputs['profit_growth'] ?? null);
         $valuation = $this->valuationAxis($inputs['per'] ?? null, $inputs['pbr'] ?? null);
-        $quality = $this->qualityAxis($inputs['roe'] ?? null, $inputs['equity_ratio'] ?? null);
+        $quality = $this->qualityAxis($inputs['roe'] ?? null, $inputs['equity_ratio'] ?? null, $inputs['roa'] ?? null);
 
         return [
             'growth' => $growth,
@@ -78,7 +78,7 @@ class StockScorer
         return ['score' => $score, 'label' => $this->band($score, ['割安', 'やや割安', '適正', 'やや割高', '割高'])];
     }
 
-    private function qualityAxis(?float $roe, ?float $equityRatio): array
+    private function qualityAxis(?float $roe, ?float $equityRatio, ?float $roa = null): array
     {
         $roeScore = match (true) {
             $roe === null => null,
@@ -98,7 +98,19 @@ class StockScorer
             default => 0,
         };
 
-        $scores = array_filter([$roeScore, $equityScore], fn ($v) => $v !== null);
+        // ROA thresholds run roughly half of ROE's, since ROA isn't
+        // inflated by leverage the way ROE can be — a highly-leveraged
+        // company can post a strong ROE on a mediocre ROA.
+        $roaScore = match (true) {
+            $roa === null => null,
+            $roa >= 10 => 100,
+            $roa >= 5 => 75,
+            $roa >= 2 => 50,
+            $roa >= 0 => 25,
+            default => 0,
+        };
+
+        $scores = array_filter([$roeScore, $equityScore, $roaScore], fn ($v) => $v !== null);
 
         if (empty($scores)) {
             return ['score' => null, 'label' => 'データ不足'];

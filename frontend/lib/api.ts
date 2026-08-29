@@ -239,7 +239,10 @@ export type TrendRow = {
   profit: number | null;
   eps: number | null;
   roe: number | null;
+  roa: number | null;
   equity_ratio: number | null;
+  dividend_per_share: number | null;
+  payout_ratio: number | null;
   yoy_net_sales: number | null;
   yoy_operating_profit: number | null;
   yoy_profit: number | null;

@@ -68,4 +68,32 @@ class FinancialTrendCalculatorTest extends TestCase
 
         $this->assertNull((new FinancialTrendCalculator($statements))->cagr('net_sales', 3));
     }
+
+    public function test_roa_and_payout_ratio_are_computed(): void
+    {
+        $statement = new FinancialStatement([
+            'fiscal_year' => 2024,
+            'period_type' => 'FY',
+            'net_sales' => 1000,
+            'profit' => 100,
+            'total_assets' => 2000,
+            'eps' => 50,
+            'dividend_per_share' => 20,
+        ]);
+
+        $rows = (new FinancialTrendCalculator(new Collection([$statement])))->toTrendRows();
+
+        $this->assertEquals(5.0, $rows[0]['roa']);
+        $this->assertEquals(40.0, $rows[0]['payout_ratio']);
+        $this->assertEquals(20, $rows[0]['dividend_per_share']);
+    }
+
+    public function test_roa_is_null_when_total_assets_missing(): void
+    {
+        $statements = new Collection([$this->makeStatement(2024, 1000, null, 100)]);
+
+        $rows = (new FinancialTrendCalculator($statements))->toTrendRows();
+
+        $this->assertNull($rows[0]['roa']);
+    }
 }
