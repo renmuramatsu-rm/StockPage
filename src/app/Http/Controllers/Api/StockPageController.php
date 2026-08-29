@@ -43,10 +43,19 @@ class StockPageController extends Controller
         // shown as filter options, never another user's private themes.
         $themes = Theme::whereNull('user_id')->orderBy('name')->get();
 
+        // This route sits outside the auth:sanctum group (guests can browse
+        // stocks too), but a logged-in session still resolves here since
+        // stateful requests already ran through StartSession — we just
+        // don't require it. Used only to render each row's star state.
+        $favoriteCodes = auth()->check()
+            ? auth()->user()->favorites()->pluck('code')
+            : collect();
+
         return response()->json([
             'stocks' => $stocks,
             'themes' => $themes,
             'badges' => self::BADGES,
+            'favoriteCodes' => $favoriteCodes,
         ]);
     }
 
@@ -174,6 +183,8 @@ class StockPageController extends Controller
             'latest' => $latestRow,
         ]);
 
+        $isFavorited = auth()->check() && auth()->user()->favorites()->where('code', $stock->code)->exists();
+
         return response()->json([
             'stock' => $stock,
             'trendRows' => $trendRows,
@@ -185,6 +196,7 @@ class StockPageController extends Controller
             'syncError' => $syncError,
             'scoreRecord' => $scoreRecord,
             'overview' => $overview,
+            'isFavorited' => $isFavorited,
         ]);
     }
 

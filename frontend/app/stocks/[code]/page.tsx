@@ -8,6 +8,7 @@ import { formatNumber } from "@/lib/format";
 import { useCurrentUser } from "@/lib/useAuth";
 import TrendChart from "@/components/TrendChart";
 import ScoreBadge from "@/components/ScoreBadge";
+import FavoriteButton from "@/components/FavoriteButton";
 
 export default function StockShowPage() {
   const user = useCurrentUser();
@@ -49,8 +50,9 @@ export default function StockShowPage() {
 
       <div className="mb-6 flex items-start justify-between flex-wrap gap-2">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">
+          <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
             {stock.stockName} <span className="text-slate-400 font-mono text-lg">{stock.code}</span>
+            {user && <FavoriteButton code={stock.code} initialFavorited={data.isFavorited} />}
           </h1>
           <p className="text-slate-500 text-sm mt-0.5">{stock.market?.market}</p>
         </div>

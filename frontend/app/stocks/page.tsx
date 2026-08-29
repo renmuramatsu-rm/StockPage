@@ -5,10 +5,13 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { StocksIndexData, getStocks } from "@/lib/api";
 import ScoreBadge from "@/components/ScoreBadge";
+import FavoriteButton from "@/components/FavoriteButton";
+import { useCurrentUser } from "@/lib/useAuth";
 
 function StocksContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const user = useCurrentUser();
   const [data, setData] = useState<StocksIndexData | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -129,6 +132,7 @@ function StocksContent() {
         <table className="w-full text-sm border-collapse min-w-[720px]">
           <thead>
             <tr className="border-b border-slate-200 bg-slate-50 text-left">
+              {user && <th className="py-2.5 px-3 w-10"></th>}
               <th className="py-2.5 px-3 text-slate-500 font-medium">コード</th>
               <th className="py-2.5 px-3 text-slate-500 font-medium">銘柄名</th>
               <th className="py-2.5 px-3 text-slate-500 font-medium">市場</th>
@@ -139,13 +143,13 @@ function StocksContent() {
           <tbody>
             {!data ? (
               <tr>
-                <td colSpan={5} className="py-8 px-3 text-center text-slate-400">
+                <td colSpan={6} className="py-8 px-3 text-center text-slate-400">
                   読み込んでいます…
                 </td>
               </tr>
             ) : data.stocks.data.length === 0 ? (
               <tr>
-                <td colSpan={5} className="py-8 px-3 text-center text-slate-400">
+                <td colSpan={6} className="py-8 px-3 text-center text-slate-400">
                   該当する銘柄がありません。
                 </td>
               </tr>
@@ -155,6 +159,11 @@ function StocksContent() {
                   key={stock.code}
                   className="border-b border-slate-100 last:border-0 odd:bg-white even:bg-slate-50/60 hover:bg-indigo-50/60 transition-colors"
                 >
+                  {user && (
+                    <td className="py-2.5 px-3">
+                      <FavoriteButton code={stock.code} initialFavorited={data.favoriteCodes.includes(stock.code)} size="sm" />
+                    </td>
+                  )}
                   <td className="py-2.5 px-3 font-mono">
                     <Link className="text-indigo-600 hover:underline font-medium" href={`/stocks/${stock.code}`}>
                       {stock.code}

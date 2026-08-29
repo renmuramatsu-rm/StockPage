@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { SbiHoldingsData, getSbiHoldings } from "@/lib/api";
-import { formatNumber } from "@/lib/format";
+import { formatNumber, relativeTimeJa } from "@/lib/format";
 import { useRequireAuth } from "@/lib/useAuth";
 import TrendChart from "@/components/TrendChart";
 import ScoreBadge from "@/components/ScoreBadge";
@@ -148,7 +148,7 @@ export default function SbiHoldingsPage() {
                       <td className="py-2 px-3 text-right">{formatNumber(holding.shares)}</td>
                       <td className="py-2 px-3 text-right">{formatNumber(holding.average_acquisition_price, 2)}</td>
                       <td className="py-2 px-3 text-right">{formatNumber(holding.acquisition_cost)}</td>
-                      <td className="py-2 px-3 text-right" title={row.price_date ? `${row.price_date}時点` : undefined}>
+                      <td className="py-2 px-3 text-right">
                         {row.current_price !== null ? (
                           <>
                             {formatNumber(row.current_price, 1)}
@@ -162,6 +162,10 @@ export default function SbiHoldingsPage() {
                                 {row.price_change_percent}%
                               </span>
                             )}
+                            <span className="block text-[10px] font-sans text-slate-400 mt-0.5">
+                              {row.price_date ? `${row.price_date}時点` : ""}
+                              {row.computed_at ? `／取得${relativeTimeJa(row.computed_at)}` : ""}
+                            </span>
                           </>
                         ) : (
                           <Link href={`/stocks/${holding.code}`} className="font-sans text-slate-400 hover:text-indigo-600 hover:underline text-xs">

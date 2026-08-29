@@ -222,6 +222,7 @@ export type StocksIndexData = {
   stocks: Paginated<Stock>;
   themes: Theme[];
   badges: string[];
+  favoriteCodes: string[];
 };
 
 export async function getStocks(params: Record<string, string> = {}): Promise<StocksIndexData> {
@@ -258,11 +259,29 @@ export type StockShowData = {
   syncError: string | null;
   scoreRecord: StockScore;
   overview: string;
+  isFavorited: boolean;
 };
 
 export async function getStock(code: string): Promise<StockShowData> {
   const response = await apiFetch(`/api/stocks/${code}`);
   return parseOrThrow(response, "銘柄詳細の取得に失敗しました。");
+}
+
+// ---- favorites ----
+
+export async function getFavorites(): Promise<{ stocks: Stock[] }> {
+  const response = await apiFetch("/api/favorites");
+  return parseOrThrow(response, "お気に入りの取得に失敗しました。");
+}
+
+export async function addFavorite(code: string): Promise<void> {
+  const response = await apiFetch("/api/favorites", { method: "POST", body: JSON.stringify({ code }) });
+  return parseOrThrow(response, "お気に入りの追加に失敗しました。");
+}
+
+export async function removeFavorite(code: string): Promise<void> {
+  const response = await apiFetch(`/api/favorites/${code}`, { method: "DELETE" });
+  return parseOrThrow(response, "お気に入りの解除に失敗しました。");
 }
 
 export async function getStockThemes(code: string): Promise<{ stock: Stock; themes: Theme[] }> {
@@ -299,6 +318,7 @@ export type SbiHoldingRow = {
   price_date: string | null;
   price_change: number | null;
   price_change_percent: number | null;
+  computed_at: string | null;
   market_value: number | null;
   unrealized_pl: number | null;
 };

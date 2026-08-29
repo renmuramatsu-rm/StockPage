@@ -44,6 +44,16 @@ class User extends Authenticatable
         return $this->hasMany(SbiHolding::class);
     }
 
+    public function favorites()
+    {
+        return $this->hasMany(Favorite::class);
+    }
+
+    public function favoriteStocks()
+    {
+        return $this->belongsToMany(Stock::class, 'favorites', 'user_id', 'code', 'id', 'code')->withTimestamps();
+    }
+
     /**
      * Get the attributes that should be cast.
      *

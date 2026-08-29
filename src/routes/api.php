@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\FavoriteController;
 use App\Http\Controllers\Api\SbiHoldingController;
 use App\Http\Controllers\Api\StockPageController;
 use App\Http\Controllers\Api\ThemeController;
@@ -32,4 +33,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/sbi-holdings/{sbi_holding}', [SbiHoldingController::class, 'show']);
     Route::put('/sbi-holdings/{sbi_holding}', [SbiHoldingController::class, 'update']);
     Route::delete('/sbi-holdings/{sbi_holding}', [SbiHoldingController::class, 'destroy']);
+
+    Route::get('/favorites', [FavoriteController::class, 'index']);
+    Route::post('/favorites', [FavoriteController::class, 'store']);
+    Route::delete('/favorites/{stock}', [FavoriteController::class, 'destroy']);
 });

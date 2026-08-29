@@ -31,6 +31,7 @@ class SbiHoldingController extends Controller
                 'price_date' => $score?->price_date?->format('Y-m-d'),
                 'price_change' => $score?->price_change !== null ? (float) $score->price_change : null,
                 'price_change_percent' => $score?->price_change_percent !== null ? (float) $score->price_change_percent : null,
+                'computed_at' => $score?->computed_at?->toIso8601String(),
                 'market_value' => $marketValue,
                 'unrealized_pl' => $marketValue !== null ? $marketValue - $holding->acquisition_cost : null,
             ];
